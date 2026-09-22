@@ -59,7 +59,8 @@ func _physics_process(delta: float) -> void:
 			route_index = (route_index + 1) % route.size()
 			return
 		var desired_angle = atan2(-offset.x, -offset.z)
-		steering = clampf(angle_difference(rotation.y, desired_angle) * 1.8, -1.0, 1.0)
+		var turn_error = angle_difference(rotation.y, desired_angle)
+		steering = clampf(turn_error * 1.8, -1.0, 1.0)
 		decision_timer -= delta
 		if decision_timer <= 0.0:
 			decision_timer = 0.2
@@ -68,8 +69,9 @@ func _physics_process(delta: float) -> void:
 			ai_brake = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 			if absf(global_position.z) < 14 and absf(absf(global_position.x) - 100) < 10 and int(game.elapsed / 12.0) % 2 == 0:
 				ai_brake = true
-		throttle = 0.65 if speed < 10.0 and not ai_brake else 0.0
-		braking = ai_brake
+			var corner_slowdown = clampf(1.0 - absf(turn_error) / 1.25, 0.28, 1.0)
+			throttle = 0.65 * corner_slowdown if speed < 10.0 and not ai_brake else 0.0
+		braking = ai_brake or (absf(turn_error) > 1.0 and speed > 5.0)
 	if health <= 0.0:
 		throttle = 0.0
 		braking = true

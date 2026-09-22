@@ -32,6 +32,9 @@ func _physics_process(delta: float) -> void:
 	if not game or game.mode != "play":
 		return
 	decision_timer -= delta
+	if rest_timer > 0.0 and health > 0.0:
+		rest_timer -= delta
+		direction = Vector3.ZERO
 	if decision_timer <= 0.0:
 		decision_timer = 0.4 + float(appearance % 4) * 0.12
 		var distance = global_position.distance_squared_to(game.focus_position())
@@ -44,7 +47,10 @@ func _physics_process(delta: float) -> void:
 				var temp = home
 				home = destination
 				destination = temp
-			direction = (target - global_position).normalized()
+				rest_timer = 1.2 + float(appearance % 3) * 0.35
+				direction = Vector3.ZERO
+			else:
+				direction = (target - global_position).normalized()
 			direction.y = 0.0
 	if health <= 0.0:
 		rest_timer -= delta
@@ -57,7 +63,9 @@ func _physics_process(delta: float) -> void:
 	frightened = maxf(0, frightened - delta)
 	if story_actor:
 		direction = Vector3.ZERO
-	var speed = 4.5 if frightened > 0 else 1.25
+	var speed = 4.5 if frightened > 0 else 1.65
+	if rest_timer > 0.0:
+		speed = 0.0
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
 	velocity.y -= 22.0 * delta
