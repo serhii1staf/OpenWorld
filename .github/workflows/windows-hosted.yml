@@ -1,0 +1,41 @@
+name: Hosted Windows - Unreal build attempt
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hosted-windows-probe
+  cancel-in-progress: false
+jobs:
+  editor-attempt:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect Windows toolchain and Unreal installation
+        id: probe
+        shell: pwsh
+        run: ./Scripts/ProbeHostedRunner.ps1
+      - name: Attempt real Unreal Editor build
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ steps.probe.outputs.engine_root }}
+        run: ./Scripts/Build.ps1 -Mode Editor
+      - name: Native automation if Editor build succeeded
+        shell: pwsh
+        env:
+          UE_ROOT: ${{ steps.probe.outputs.engine_root }}
+        run: ./Scripts/Test.ps1
+      - name: Upload diagnostic evidence even when build fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosted-windows-build-diagnostics
+          path: |
+            Artifacts/HostedProbe/
+            Artifacts/Tests/
+            Saved/Logs/
+          if-no-files-found: warn
+          retention-days: 14
