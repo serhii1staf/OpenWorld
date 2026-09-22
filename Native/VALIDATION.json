@@ -1,0 +1,31 @@
+{
+  "release": "https://github.com/serhii1staf/OpenWorld/releases/tag/v0.2.0-alpha",
+  "build": "https://github.com/serhii1staf/OpenWorld/actions/runs/35780462931",
+  "commit": "452eff367cbe9b6d4a51c49a65559e05a08589df",
+  "zip_sha256": "2eb0788e22b0911491d9bfedd16d35cec0e11b3114027aeabb5a15300cf3f070",
+  "assets": [
+    {
+      "name": "OpenWorld-Setup-0.2.0.exe",
+      "size": 30434098,
+      "url": "https://github.com/serhii1staf/OpenWorld/releases/download/v0.2.0-alpha/OpenWorld-Setup-0.2.0.exe"
+    },
+    {
+      "name": "OpenWorld-Windows-x64-0.2.0.zip",
+      "size": 35369659,
+      "url": "https://github.com/serhii1staf/OpenWorld/releases/download/v0.2.0-alpha/OpenWorld-Windows-x64-0.2.0.zip"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 192,
+      "url": "https://github.com/serhii1staf/OpenWorld/releases/download/v0.2.0-alpha/SHA256SUMS.txt"
+    },
+    {
+      "name": "windows-smoke.log",
+      "size": 1298,
+      "url": "https://github.com/serhii1staf/OpenWorld/releases/download/v0.2.0-alpha/windows-smoke.log"
+    }
+  ],
+  "windows_smoke": "34 checks, 0 failures; exported EXE executed headlessly on Windows",
+  "installer": "CI silent install/uninstall passed",
+  "rendering": "Linux Mesa OpenGL actual rendering checked; Windows GPU/audio hardware not tested"
+}
