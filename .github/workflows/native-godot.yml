@@ -124,5 +124,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v0.2.0-alpha --target $env:GITHUB_SHA --prerelease --title 'OpenWorld / Port Meridian — Windows alpha 0.2.0' --notes-file Native/RELEASE_NOTES.md Artifacts/Release/OpenWorld-Windows-x64-0.2.0.zip Artifacts/Release/OpenWorld-Setup-0.2.0.exe Artifacts/Release/SHA256SUMS.txt Artifacts/Release/windows-smoke.log
-          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
+          $Tag = 'v0.2.0-alpha'
+          $Files = @(
+            'Artifacts/Release/OpenWorld-Windows-x64-0.2.0.zip',
+            'Artifacts/Release/OpenWorld-Setup-0.2.0.exe',
+            'Artifacts/Release/SHA256SUMS.txt',
+            'Artifacts/Release/windows-smoke.log'
+          )
+          gh release view $Tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release edit $Tag --target $env:GITHUB_SHA --prerelease --title 'OpenWorld / Port Meridian — Windows alpha 0.2.0' --notes-file Native/RELEASE_NOTES.md
+            if ($LASTEXITCODE -ne 0) { throw 'Existing release update failed' }
+            gh release upload $Tag @Files --clobber
+            if ($LASTEXITCODE -ne 0) { throw 'Existing release asset upload failed' }
+          } else {
+            gh release create $Tag --target $env:GITHUB_SHA --prerelease --title 'OpenWorld / Port Meridian — Windows alpha 0.2.0' --notes-file Native/RELEASE_NOTES.md @Files
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
