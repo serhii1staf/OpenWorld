@@ -42,7 +42,7 @@ static func cylinder(parent: Node3D, radius: float, height: float, pos: Vector3,
 	shape.bottom_radius = radius
 	shape.top_radius = radius if top < 0.0 else top
 	shape.height = height
-	shape.radial_segments = 12
+	shape.radial_segments = 24
 	mesh.mesh = shape
 	mesh.material_override = material
 	mesh.position = pos
@@ -55,8 +55,8 @@ static func sphere(parent: Node3D, radius: float, pos: Vector3, material: Materi
 	var shape = SphereMesh.new()
 	shape.radius = radius
 	shape.height = radius * 2.0
-	shape.radial_segments = 12
-	shape.rings = 6
+	shape.radial_segments = 24
+	shape.rings = 12
 	mesh.mesh = shape
 	mesh.position = pos
 	mesh.material_override = material
