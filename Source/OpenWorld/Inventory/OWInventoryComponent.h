@@ -19,6 +19,8 @@ class OPENWORLD_API UOWInventoryComponent : public UActorComponent
 public:
     UOWInventoryComponent();
     UPROPERTY(BlueprintAssignable) FOWInventoryChanged OnChanged;
+    UPROPERTY(EditDefaultsOnly) TArray<FOWItemStack> InitialItems;
+    UPROPERTY(EditDefaultsOnly) int64 InitialMoney = 0;
     UFUNCTION(BlueprintPure) int32 Count(FName Item) const;
     UFUNCTION(BlueprintPure) int64 GetMoney() const { return Money; }
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly) bool Add(FName Item, int32 Quantity);
@@ -29,6 +31,8 @@ public:
     bool Restore(const TArray<FOWItemStack>& NewItems, int64 NewMoney);
     static bool ValidateSnapshot(const TArray<FOWItemStack>& NewItems, int64 NewMoney);
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+protected:
+    virtual void BeginPlay() override;
 private:
     UPROPERTY(ReplicatedUsing=Changed, SaveGame) TArray<FOWItemStack> Items;
     UPROPERTY(ReplicatedUsing=Changed, SaveGame) int64 Money = 0;

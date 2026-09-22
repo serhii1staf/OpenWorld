@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
+#include "Perception/AISense_Hearing.h"
 UOWWeaponComponent::UOWWeaponComponent() { SetIsReplicatedByDefault(true); PrimaryComponentTick.bCanEverTick = false; }
 void UOWWeaponComponent::BeginPlay()
 {
@@ -39,7 +40,7 @@ void UOWWeaponComponent::FireOne()
     if (GetWorld()->GetSubsystem<UOWBallisticsSubsystem>()->Fire(Pawn, Pawn->GetController(), Origin, Direction * FMath::Clamp(Definition->MuzzleVelocityMPS, 1.f, 2000.f) * 100.f, Definition->Damage))
     {
         --Magazine; NextShotAt = Now + FMath::Max(0.05f, Definition->ShotInterval);
-        Pawn->MakeNoise(1.f, Pawn, Origin);
+        UAISense_Hearing::ReportNoiseEvent(GetWorld(), Origin, 1.f, Pawn, 5000.f, "Gunshot");
         ShotFX(Origin, Direction);
     }
 }
@@ -74,7 +75,7 @@ bool UOWWeaponComponent::RestoreMagazine(int32 Value)
 }
 void UOWWeaponComponent::ShotFX_Implementation(FVector_NetQuantize Origin, FVector_NetQuantizeNormal Direction)
 {
-    if (GetNetMode() != NM_DedicatedServer) OnShotFX(Origin, Direction);
+    if (GetWorld()->GetNetMode() != NM_DedicatedServer) OnShotFX(Origin, Direction);
 }
 void UOWWeaponComponent::EndPlay(const EEndPlayReason::Type Reason) { CancelActions(); Super::EndPlay(Reason); }
 void UOWWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const

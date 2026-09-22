@@ -6,6 +6,12 @@ UOWInventoryComponent::UOWInventoryComponent()
     PrimaryComponentTick.bCanEverTick = false;
     SetIsReplicatedByDefault(true);
 }
+void UOWInventoryComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    if (GetOwner()->HasAuthority() && !Restore(InitialItems, InitialMoney))
+        UE_LOG(LogTemp, Error, TEXT("Invalid initial inventory on %s"), *GetOwner()->GetPathName());
+}
 int32 UOWInventoryComponent::Count(FName Item) const
 {
     const FOWItemStack* Stack = Items.FindByPredicate([Item](const FOWItemStack& S){ return S.Item == Item; });
