@@ -50,6 +50,19 @@ static func cylinder(parent: Node3D, radius: float, height: float, pos: Vector3,
 	parent.add_child(mesh)
 	return mesh
 
+static func capsule(parent: Node3D, radius: float, height: float, pos: Vector3, material: Material) -> MeshInstance3D:
+	var mesh = MeshInstance3D.new()
+	var shape = CapsuleMesh.new()
+	shape.radius = radius
+	shape.height = height
+	shape.radial_segments = 16
+	shape.rings = 6
+	mesh.mesh = shape
+	mesh.material_override = material
+	mesh.position = pos
+	parent.add_child(mesh)
+	return mesh
+
 static func sphere(parent: Node3D, radius: float, pos: Vector3, material: Material) -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	var shape = SphereMesh.new()
@@ -98,26 +111,30 @@ static func person(parent: Node3D, coat_color: Color, skin_color: Color, seed_va
 	var skin = mat("skin" + str(skin_color), skin_color)
 	var navy = mat("navy", Color("263541"))
 	var shoes = mat("shoe", Color("182128"))
-	box(root, Vector3(0.56, 0.65, 0.34), Vector3(0, 1.22, 0), coat)
+	var torso = capsule(root, 0.31, 0.82, Vector3(0, 1.22, 0), coat)
+	torso.scale = Vector3(1.0, 1.0, 0.72)
 	box(root, Vector3(0.43, 0.19, 0.3), Vector3(0, 0.87, 0), navy)
 	cylinder(root, 0.09, 0.16, Vector3(0, 1.61, 0), skin)
 	var head = sphere(root, 0.23, Vector3(0, 1.85, 0), skin)
 	head.scale = Vector3(0.88, 1.18, 0.91)
 	var hair = sphere(root, 0.233, Vector3(0, 1.98, 0.035), mat("hair" + str(seed_value % 3), [Color("252324"), Color("594231"), Color("b18449")][seed_value % 3]))
 	hair.scale = Vector3(0.93, 0.64, 0.89)
+	var face = mat("face" + str(seed_value % 3), Color("362d2a"))
+	for side in [-1.0, 1.0]:
+		sphere(root, 0.025, Vector3(side * 0.085, 1.86, -0.216), face)
 	for side in [-1.0, 1.0]:
 		box(root, Vector3(0.037, 0.034, 0.027), Vector3(side * 0.085, 1.86, -0.192), shoes)
 		var arm = Node3D.new()
 		arm.name = "ArmL" if side < 0.0 else "ArmR"
 		root.add_child(arm)
 		arm.position = Vector3(side * 0.35, 1.48, 0)
-		box(arm, Vector3(0.18, 0.53, 0.23), Vector3(0, -0.26, 0), coat)
-		sphere(arm, 0.095, Vector3(0, -0.58, 0), skin)
+		capsule(arm, 0.105, 0.56, Vector3(0, -0.28, 0), coat)
+		sphere(arm, 0.105, Vector3(0, -0.59, 0), skin)
 		var leg = Node3D.new()
 		leg.name = "LegL" if side < 0.0 else "LegR"
 		root.add_child(leg)
 		leg.position = Vector3(side * 0.15, 0.85, 0)
-		box(leg, Vector3(0.23, 0.7, 0.27), Vector3(0, -0.35, 0), navy)
+		capsule(leg, 0.13, 0.72, Vector3(0, -0.36, 0), navy)
 		box(leg, Vector3(0.24, 0.16, 0.39), Vector3(0, -0.76, -0.065), shoes)
 	return root
 
