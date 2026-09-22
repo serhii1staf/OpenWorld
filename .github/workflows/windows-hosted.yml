@@ -1,4 +1,4 @@
-name: Hosted Windows - Unreal build attempt
+name: Legacy UE - Hosted Windows probe
 on:
   workflow_dispatch:
 permissions:

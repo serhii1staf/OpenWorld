@@ -1,4 +1,4 @@
-name: Source integrity (not Unreal compilation)
+name: Legacy UE - Source integrity (not compilation)
 on:
   push:
     branches: [main]

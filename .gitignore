@@ -51,3 +51,7 @@ Artifacts/
 *.zip
 *.7z
 __pycache__/
+
+# Godot editor cache / local native exports
+.godot/
+Native/.godot/

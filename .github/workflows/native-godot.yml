@@ -1,0 +1,128 @@
+name: Native game - Windows EXE and installer
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish tested alpha artifacts to GitHub Releases
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: native-godot-release
+  cancel-in-progress: false
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download verified official Godot and Windows export template
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable
+          curl -fL --retry 3 "$BASE/Godot_v4.5.1-stable_linux.x86_64.zip" -o /tmp/godot.zip
+          echo '02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  /tmp/godot.zip' | sha256sum -c -
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v4.5.1-stable_linux.x86_64
+          echo /tmp/godot >> "$GITHUB_PATH"
+          curl -fL --retry 3 "$BASE/Godot_v4.5.1-stable_export_templates.tpz" -o /tmp/templates.tpz
+          echo '1998af37f1387684e2c211cdb483daf492fc64dc6b12096bddcdca25b6910c86  /tmp/templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.5.1.stable"
+          unzip -q -j /tmp/templates.tpz templates/windows_release_x86_64.exe templates/windows_debug_x86_64.exe -d "$HOME/.local/share/godot/export_templates/4.5.1.stable"
+          rm /tmp/templates.tpz
+      - name: Import and exercise gameplay in the actual engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Artifacts/Native Artifacts/Reports
+          Godot_v4.5.1-stable_linux.x86_64 --headless --path Native --editor --import --quit 2>&1 | tee Artifacts/Reports/import.log
+          if grep -E 'SCRIPT ERROR|Parse Error' Artifacts/Reports/import.log; then exit 1; fi
+          Godot_v4.5.1-stable_linux.x86_64 --headless --path Native --script res://tests/smoke_test.gd 2>&1 | tee Artifacts/Reports/linux-smoke.log
+          grep -q 'OPENWORLD_SMOKE_RESULT checks=34 failures=0' Artifacts/Reports/linux-smoke.log
+          if grep -E 'SCRIPT ERROR|^ERROR:' Artifacts/Reports/linux-smoke.log; then exit 1; fi
+      - name: Export native Windows release
+        shell: bash
+        run: |
+          set -euo pipefail
+          Godot_v4.5.1-stable_linux.x86_64 --headless --path Native --export-release 'Windows Desktop' ../Artifacts/Native/OpenWorld.exe 2>&1 | tee Artifacts/Reports/export.log
+          test -s Artifacts/Native/OpenWorld.exe
+          if grep -E 'SCRIPT ERROR|^ERROR:' Artifacts/Reports/export.log; then exit 1; fi
+          cp Native/PLAY_RU.txt Artifacts/Native/
+          cp -r Native/licenses Artifacts/Native/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-export
+          path: Artifacts/Native/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-linux-reports
+          path: Artifacts/Reports/
+  windows-test-and-package:
+    needs: export
+    runs-on: windows-2022
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-export
+          path: Artifacts/Native
+      - name: Run the exported EXE on Windows (headless gameplay tests)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $Exe = Join-Path $PWD 'Artifacts/Native/OpenWorld.exe'
+          $Log = Join-Path $PWD 'Artifacts/windows-smoke.log'
+          $p = Start-Process -FilePath $Exe -ArgumentList @('--headless','--script','res://tests/smoke_test.gd','--log-file',"`"$Log`"") -PassThru
+          if (-not $p.WaitForExit(120000)) { $p.Kill(); throw 'Windows EXE test timed out' }
+          $Text = Get-Content $Log -Raw
+          Write-Host $Text
+          if ($p.ExitCode -ne 0 -or $Text -notmatch 'OPENWORLD_SMOKE_RESULT checks=34 failures=0' -or $Text -match 'SCRIPT ERROR|(?m)^ERROR:') { throw 'Exported Windows executable failed gameplay tests' }
+      - name: Package ZIP and Inno Setup installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force Artifacts/Release | Out-Null
+          Compress-Archive -Path Artifacts/Native/* -DestinationPath Artifacts/Release/OpenWorld-Windows-x64-0.2.0.zip -CompressionLevel Optimal
+          $ISCC = "${env:ProgramFiles(x86)}/Inno Setup 6/ISCC.exe"
+          if (-not (Test-Path $ISCC)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
+          }
+          & $ISCC "/DPackageRoot=$PWD/Artifacts/Native" Native/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          Get-ChildItem Artifacts/Release -File | ForEach-Object { "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $($_.Name)" } | Set-Content Artifacts/Release/SHA256SUMS.txt -Encoding ascii
+          Copy-Item Artifacts/windows-smoke.log Artifacts/Release/windows-smoke.log
+      - name: Verify installer installs and uninstalls
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $Install = Join-Path $env:RUNNER_TEMP 'OpenWorldInstallTest'
+          $Setup = Join-Path $PWD 'Artifacts/Release/OpenWorld-Setup-0.2.0.exe'
+          $p = Start-Process $Setup -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=`"$Install`"") -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path "$Install/OpenWorld.exe")) { throw 'Installer installation failed' }
+          $p = Start-Process "$Install/unins000.exe" -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART') -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or (Test-Path "$Install/OpenWorld.exe")) { throw 'Installer uninstall failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OpenWorld-Windows-release
+          path: Artifacts/Release/
+          if-no-files-found: error
+      - name: Publish real native alpha
+        if: inputs.publish && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v0.2.0-alpha --target $env:GITHUB_SHA --prerelease --title 'OpenWorld / Port Meridian — Windows alpha 0.2.0' --notes-file Native/RELEASE_NOTES.md Artifacts/Release/OpenWorld-Windows-x64-0.2.0.zip Artifacts/Release/OpenWorld-Setup-0.2.0.exe Artifacts/Release/SHA256SUMS.txt Artifacts/Release/windows-smoke.log
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

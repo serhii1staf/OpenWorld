@@ -1,4 +1,4 @@
-name: Native Windows build (requires UE runner and content)
+name: Legacy UE - Native Windows build
 on:
   workflow_dispatch:
     inputs:

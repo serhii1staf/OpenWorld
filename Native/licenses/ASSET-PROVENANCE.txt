@@ -1,0 +1,12 @@
+Original assets for OpenWorld / Port Meridian
+
+All district geometry, characters, vehicle geometry, procedural animation,
+world dressing and UI in Native/scripts were authored for this project.
+Synthetic audio in Native/assets was created by generate_audio.py using
+oscillators and pseudorandom noise. No third-party recordings, GTA/RDR
+models, music, textures or animation libraries were downloaded or copied.
+These original assets are covered by the repository's MIT license.
+
+Godot 4.5.1 runtime and its bundled libraries/fonts retain their licenses;
+see GODOT-LICENSE.txt and GODOT-THIRD-PARTY.txt. Official binaries/templates
+are downloaded from godotengine/godot-builds and verified by SHA256 in CI.
