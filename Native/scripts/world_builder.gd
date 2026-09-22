@@ -35,6 +35,7 @@ func build(parent: Node3D) -> void:
 	forest()
 	landmarks()
 	street_furniture()
+	district_props()
 	for x in [-284.0, 284.0]:
 		V.box(root, Vector3(1, 8, 485), Vector3(x, 3, -60), stone, true).visible = false
 	V.box(root, Vector3(570, 8, 1), Vector3(0, 3, -302), stone, true).visible = false
@@ -259,3 +260,24 @@ func street_furniture() -> void:
 			V.cylinder(root, 0.3, 3.6, Vector3(x, 1.8, z), wood)
 			var crown = V.sphere(root, 2.6, Vector3(x, 4.5, z), V.mat("townleaves", Color("668a65")))
 			crown.scale.y = 0.9
+
+func district_props() -> void:
+	# Small authored details break up the procedural silhouette and give streets a readable scale.
+	var curb = V.mat("curb_detail", Color("8e9587"))
+	var red = V.mat("postbox", Color("b74f46"), 0.1)
+	var teal = V.mat("utility_teal", Color("3d7770"), 0.15)
+	for pos in [Vector3(-62, 0, 9), Vector3(62, 0, 91), Vector3(-138, 0, 9), Vector3(138, 0, -91)]:
+		V.box(root, Vector3(4.2, 0.16, 0.24), pos + Vector3(0, 0.12, 0), curb)
+		V.box(root, Vector3(0.16, 1.0, 0.16), pos + Vector3(-1.7, 0.58, 0), teal)
+		V.box(root, Vector3(0.16, 1.0, 0.16), pos + Vector3(1.7, 0.58, 0), teal)
+		V.box(root, Vector3(3.9, 0.18, 0.18), pos + Vector3(0, 1.02, 0), teal)
+	for pos in [Vector3(-76, 0, 88), Vector3(74, 0, 88), Vector3(-153, 0, -88), Vector3(154, 0, 88), Vector3(214, 0, -86)]:
+		V.cylinder(root, 0.16, 1.15, pos + Vector3(0, 0.58, 0), red)
+		V.box(root, Vector3(0.5, 0.15, 0.32), pos + Vector3(0, 1.05, -0.08), red)
+	for pos in [Vector3(-52, 0, 67), Vector3(52, 0, 67), Vector3(-52, 0, -67), Vector3(52, 0, -67)]:
+		V.box(root, Vector3(1.8, 1.2, 0.9), pos + Vector3(0, 0.6, 0), teal, true)
+		V.box(root, Vector3(1.45, 0.08, 0.08), pos + Vector3(0, 1.2, -0.47), curb)
+	# Warm facade lights make the district readable after sunset.
+	var warm = V.mat("facade_light", Color("ffd99a"), 0.0, 1.0)
+	for pos in [Vector3(-34, 3.0, 56.2), Vector3(29, 3.0, 58.2), Vector3(-120, 3.0, -41.2), Vector3(127, 2.0, 46.2), Vector3(146, 3.0, 138.2)]:
+		V.box(root, Vector3(0.65, 0.28, 0.08), pos, warm)
