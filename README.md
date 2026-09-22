@@ -79,6 +79,8 @@ Artifacts/OpenWorld-Win64-Shipping.zip.sha256
 
 ## GitHub и автоматизация
 
+**Реальная попытка на GitHub-hosted Windows выполнена:** [run 35777285735](https://github.com/serhii1staf/OpenWorld/actions/runs/35777285735). VM и VS C++ доступны; build остановился до компиляции из-за отсутствующего UE 5.6. [Отчёт и пути настройки движка](docs/GITHUB_BUILD.md).
+
 - `Source integrity (not Unreal compilation)` — Ubuntu job, статическая структура и 10 Python-тестов. **Зелёный статус этого job не доказывает компиляцию Unreal.**
 - `Native Windows build` — ручной workflow, только main, требует доверенный self-hosted Windows x64 runner с labels `ue-5.6`, машинный `UE_ROOT` и environment `windows-release`.
 - В Settings → Environments защитить `windows-release` ручным approval. Никогда не выполнять untrusted PR на runner с личными файлами/секретами. В публичном репозитории runners предпочтительно изолировать и пересоздавать после job.

@@ -1,0 +1,28 @@
+{
+  "Scope": "Hosted Windows environment probe; not a gameplay or packaging test",
+  "TimestampUTC": "2026-09-22T19:59:18.5678134Z",
+  "RunnerOS": "Windows",
+  "RunnerArchitecture": "X64",
+  "ImageVersion": "20260913.307.1",
+  "CPUCount": 4,
+  "MemoryGB": 16.0,
+  "Drives": [
+    {
+      "UsedGB": 172.7,
+      "FreeGB": 82.8,
+      "Drive": "C"
+    },
+    {
+      "UsedGB": 3.0,
+      "FreeGB": 147.0,
+      "Drive": "D"
+    }
+  ],
+  "VisualStudioCppInstallation": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise",
+  "UE56Found": false,
+  "UE56Root": "",
+  "EngineLocationsChecked": [],
+  "WorkflowRun": "https://github.com/serhii1staf/OpenWorld/actions/runs/35777285735",
+  "BuildOutcome": "Failed before UHT/C++ compilation: UE_ROOT / UE 5.6 installation missing",
+  "NativeTests": "Skipped"
+}
