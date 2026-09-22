@@ -46,9 +46,9 @@ var show_map: bool = false
 var show_stats: bool = false
 var inventory: Array = []
 var save_store = Store.new()
-var quality: int = 1
+var quality: int = 2
 var volume: float = 0.65
-var fullscreen: bool = false
+var fullscreen: bool = true
 var music: AudioStreamPlayer
 var ambient: AudioStreamPlayer
 var sounds: Dictionary = {}
@@ -341,7 +341,7 @@ func _process(delta: float) -> void:
 	if in_vehicle and mode == "play" and absf(car.speed) > 2 and Input.is_action_pressed("forward"):
 		camera_yaw = lerp_angle(camera_yaw, car.rotation.y, delta * 0.65)
 	camera_pivot.rotation = Vector3(camera_pitch, camera_yaw, 0)
-	spring.spring_length = lerpf(spring.spring_length, (9.0 if camera_far else 6.7) if in_vehicle else (6.2 if camera_far else 4.6), minf(delta * 4, 1))
+	spring.spring_length = lerpf(spring.spring_length, (10.5 if camera_far else 8.2) if in_vehicle else (7.6 if camera_far else 5.8), minf(delta * 4, 1))
 	camera.h_offset = sin(elapsed * 97.0) * camera_shake
 	camera.fov = lerpf(camera.fov, 67.0 + absf(car.speed) * 0.25 if in_vehicle else 67.0, delta * 2.0)
 	if mode == "play":
@@ -610,9 +610,9 @@ func load_game() -> bool:
 func load_settings() -> void:
 	var config = ConfigFile.new()
 	if config.load("user://settings.cfg") == OK:
-		quality = clampi(int(config.get_value("video", "quality", 1)), 0, 2)
+		quality = clampi(int(config.get_value("video", "quality", 2)), 0, 2)
 		volume = clampf(float(config.get_value("audio", "volume", 0.65)), 0, 1)
-		fullscreen = bool(config.get_value("video", "fullscreen", false))
+		fullscreen = bool(config.get_value("video", "fullscreen", true))
 
 func apply_quality() -> void:
 	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][quality]
