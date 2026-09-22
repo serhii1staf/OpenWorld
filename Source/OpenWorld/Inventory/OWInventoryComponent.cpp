@@ -68,9 +68,9 @@ bool UOWInventoryComponent::Restore(const TArray<FOWItemStack>& NewItems, int64 
     if (!GetOwner()->HasAuthority() || !ValidateSnapshot(NewItems, NewMoney)) return false;
     Items = NewItems; Money = NewMoney; Changed(); return true;
 }
-void UOWInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void UOWInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME_CONDITION(UOWInventoryComponent, Items, COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(UOWInventoryComponent, Money, COND_OwnerOnly);
 }

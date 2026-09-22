@@ -27,7 +27,7 @@ public:
     virtual FOWWorldRecord CapturePersistentState() const override;
     virtual void RestorePersistentState(const FOWWorldRecord& State) override;
     UFUNCTION(BlueprintImplementableEvent) void PresentationChanged(bool bNewUsed);
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;

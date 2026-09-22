@@ -25,7 +25,7 @@ bool UOWHealthComponent::Restore(float Value)
     Health = Value; Changed(); return true;
 }
 void UOWHealthComponent::Changed() { OnChanged.Broadcast(Health, IsDead()); }
-void UOWHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void UOWHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out); DOREPLIFETIME(UOWHealthComponent, Health);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UOWHealthComponent, Health);
 }

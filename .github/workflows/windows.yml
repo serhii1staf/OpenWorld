@@ -1,0 +1,60 @@
+name: Native Windows build (requires UE runner and content)
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        type: choice
+        options: [Development, Shipping]
+        default: Development
+      draft_release:
+        description: Create a draft prerelease with the built Windows ZIP
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: windows-ue56
+  cancel-in-progress: false
+jobs:
+  windows:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, ue-5.6]
+    environment: windows-release
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+          persist-credentials: false
+      - name: Build editor (C++ and UHT)
+        shell: pwsh
+        run: ./Scripts/Build.ps1 -Mode Editor
+      - name: Run native Unreal automation
+        shell: pwsh
+        run: ./Scripts/Test.ps1
+      - name: Package Windows executable
+        shell: pwsh
+        env:
+          BUILD_CONFIGURATION: ${{ inputs.configuration }}
+        run: ./Scripts/Build.ps1 -Mode Package -Configuration $env:BUILD_CONFIGURATION
+      - name: Upload package and reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWorld-Win64-${{ inputs.configuration }}
+          path: |
+            Artifacts/OpenWorld-Win64-*.zip
+            Artifacts/OpenWorld-Win64-*.sha256
+            Artifacts/Tests/
+          if-no-files-found: error
+      - name: Draft native prerelease (manual QA required before publication)
+        if: inputs.draft_release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_CONFIGURATION: ${{ inputs.configuration }}
+          RELEASE_TAG: v0.0.1-win64-${{ github.run_number }}
+        run: |
+          gh release create $env:RELEASE_TAG --target $env:GITHUB_SHA --draft --prerelease --title "OpenWorld native build / QA pending" --notes "UE build and automation completed. This draft still requires the manual smoke test and performance evidence in docs/QA.md before publication." "Artifacts/OpenWorld-Win64-$env:BUILD_CONFIGURATION.zip" "Artifacts/OpenWorld-Win64-$env:BUILD_CONFIGURATION.zip.sha256"
+          if ($LASTEXITCODE -ne 0) { throw "Draft release failed" }

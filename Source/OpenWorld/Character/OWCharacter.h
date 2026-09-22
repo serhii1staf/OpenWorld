@@ -20,7 +20,7 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UPawnNoiseEmitterComponent> NoiseEmitter;
     AActor* FindInteraction() const;
     virtual void SetupPlayerInputComponent(UInputComponent* Input) override;
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
     virtual void BeginPlay() override;
 private:

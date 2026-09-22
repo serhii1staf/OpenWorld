@@ -20,9 +20,9 @@ void AOWGameState::Advance()
     Wetness = FMath::FInterpConstantTo(Wetness, Rain > 0.1f ? 1.f : 0.f, 0.5f, Rain > 0.1f ? 0.02f : 0.002f);
 }
 void AOWGameState::EndPlay(const EEndPlayReason::Type Reason) { GetWorldTimerManager().ClearTimer(ClockTimer); Super::EndPlay(Reason); }
-void AOWGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void AOWGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AOWGameState, WorldHours); DOREPLIFETIME(AOWGameState, Weather);
     DOREPLIFETIME(AOWGameState, Wetness); DOREPLIFETIME(AOWGameState, Rain); DOREPLIFETIME(AOWGameState, Snow);
 }

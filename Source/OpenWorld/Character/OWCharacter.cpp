@@ -84,7 +84,7 @@ void AOWCharacter::SetupPlayerInputComponent(UInputComponent* Input)
     Input->BindAction("Fire", IE_Pressed, this, &AOWCharacter::FireOn); Input->BindAction("Fire", IE_Released, this, &AOWCharacter::FireOff);
     Input->BindAction("Reload", IE_Pressed, this, &AOWCharacter::RequestReload);
 }
-void AOWCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void AOWCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out); DOREPLIFETIME(AOWCharacter, bSprinting);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AOWCharacter, bSprinting);
 }

@@ -45,3 +45,9 @@ secrets/
 # IDE
 *.user
 *.swp
+
+# Local packaged releases / reports
+Artifacts/
+*.zip
+*.7z
+__pycache__/

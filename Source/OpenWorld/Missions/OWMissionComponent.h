@@ -27,8 +27,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly) void Emit(FName Event, int32 Amount = 1);
     bool ValidateSnapshot(const TArray<FOWMissionProgress>& Data) const;
     bool Restore(const TArray<FOWMissionProgress>& Data);
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 private:
+    bool bApplyingEvent = false;
     const UOWMissionDefinition* Find(FName Id) const;
     UFUNCTION() void Changed() { OnChanged.Broadcast(); }
 };

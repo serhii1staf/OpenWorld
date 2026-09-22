@@ -13,7 +13,7 @@ const UOWMissionDefinition* UOWMissionComponent::Find(FName Id) const
 }
 bool UOWMissionComponent::Start(FName Id)
 {
-    if (!GetOwner()->HasAuthority() || Progress.Num() >= 128) return false;
+    if (bApplyingEvent || !GetOwner()->HasAuthority() || Progress.Num() >= 128) return false;
     const UOWMissionDefinition* D = Find(Id);
     if (!D || D->Objectives.IsEmpty() || D->Reward < 0 || Progress.ContainsByPredicate([Id](const FOWMissionProgress& P){return P.MissionId == Id;})) return false;
     for (const FOWObjective& O : D->Objectives) if (O.Event.IsNone() || O.Required < 1) return false;
@@ -28,7 +28,8 @@ bool UOWMissionComponent::Start(FName Id)
 }
 void UOWMissionComponent::Emit(FName Event, int32 Amount)
 {
-    if (!GetOwner()->HasAuthority() || Event.IsNone() || Amount < 1 || Amount > 10000) return;
+    if (bApplyingEvent || !GetOwner()->HasAuthority() || Event.IsNone() || Amount < 1 || Amount > 10000) return;
+    TGuardValue<bool> ProcessingGuard(bApplyingEvent, true);
     bool bChanged = false;
     for (FOWMissionProgress& P : Progress)
     {
@@ -47,6 +48,7 @@ void UOWMissionComponent::Emit(FName Event, int32 Amount)
         P.Count = NewCount; bChanged = true;
         if (P.Count == O.Required) { ++P.Objective; P.Count = 0; }
     }
+    bApplyingEvent = false;
     if (bChanged) Changed();
 }
 bool UOWMissionComponent::ValidateSnapshot(const TArray<FOWMissionProgress>& Data) const
@@ -68,11 +70,11 @@ bool UOWMissionComponent::ValidateSnapshot(const TArray<FOWMissionProgress>& Dat
 }
 bool UOWMissionComponent::Restore(const TArray<FOWMissionProgress>& Data)
 {
-    if (!GetOwner()->HasAuthority() || !ValidateSnapshot(Data)) return false;
+    if (bApplyingEvent || !GetOwner()->HasAuthority() || !ValidateSnapshot(Data)) return false;
     Progress = Data; Changed(); return true;
 }
-void UOWMissionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void UOWMissionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME_CONDITION(UOWMissionComponent, Progress, COND_OwnerOnly);
 }

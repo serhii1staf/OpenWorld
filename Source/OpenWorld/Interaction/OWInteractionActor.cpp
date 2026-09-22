@@ -51,7 +51,8 @@ void AOWInteractionActor::Interact_Implementation(APawn* User)
     }
     const int64 NewMoney = P->Inventory->GetMoney() - Cost;
     if (!UOWInventoryComponent::ValidateSnapshot(Items, NewMoney)) return;
-    if (!MissionToStart.IsNone() && !P->Missions->Start(MissionToStart)) return;
+    bUsed = true;
+    if (!MissionToStart.IsNone() && !P->Missions->Start(MissionToStart)) { bUsed = false; return; }
     P->Inventory->Restore(Items, NewMoney);
     bUsed = true; StateChanged();
     if (!MissionEvent.IsNone()) P->Missions->Emit(MissionEvent);
@@ -65,7 +66,7 @@ void AOWInteractionActor::RestorePersistentState(const FOWWorldRecord& R)
 {
     if (HasAuthority() && R.Id == SaveId && R.Kind == "Interaction") { bUsed = R.bUsed; StateChanged(); }
 }
-void AOWInteractionActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void AOWInteractionActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out); DOREPLIFETIME(AOWInteractionActor, bUsed);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AOWInteractionActor, bUsed);
 }

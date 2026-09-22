@@ -25,7 +25,7 @@ void AOWTrafficController::Drive()
     AOWTrafficLane* L = Lane.Get();
     if (!L || V->Health->IsDead()) { Movement->SetThrottleInput(0); Movement->SetBrakeInput(1); return; }
     const FVector Position = V->GetActorLocation();
-    const float Distance = L->Spline->GetDistanceAlongSplineAtLocation(Position,ESplineCoordinateSpace::World);
+    const float Distance = L->Spline->GetDistanceAlongSplineAtSplineInputKey(L->Spline->FindInputKeyClosestToWorldLocation(Position));
     const float Speed = FMath::Max(0.f,Movement->GetForwardSpeed());
     const float LookAhead = FMath::Clamp(Speed*0.8f,400.f,1800.f);
     const FVector Aim = L->Spline->GetLocationAtDistanceAlongSpline(Distance+LookAhead,ESplineCoordinateSpace::World);

@@ -17,7 +17,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) float Rain = 0.f;
     UPROPERTY(Replicated, BlueprintReadOnly) float Snow = 0.f;
     UFUNCTION(BlueprintPure) float HourOfDay() const { return static_cast<float>(FMath::Fmod(WorldHours, 24.0)); }
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;

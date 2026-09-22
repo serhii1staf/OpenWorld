@@ -75,12 +75,12 @@ bool UOWWeaponComponent::RestoreMagazine(int32 Value)
 }
 void UOWWeaponComponent::ShotFX_Implementation(FVector_NetQuantize Origin, FVector_NetQuantizeNormal Direction)
 {
-    if (GetWorld()->GetNetMode() != NM_DedicatedServer) OnShotFX(Origin, Direction);
+    if (GetWorld()->GetNetMode() != NM_DedicatedServer) { OnShot.Broadcast(Origin, Direction); OnShotFX(Origin, Direction); }
 }
 void UOWWeaponComponent::EndPlay(const EEndPlayReason::Type Reason) { CancelActions(); Super::EndPlay(Reason); }
-void UOWWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void UOWWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME_CONDITION(UOWWeaponComponent, Magazine, COND_OwnerOnly);
     DOREPLIFETIME(UOWWeaponComponent, bReloading);
 }

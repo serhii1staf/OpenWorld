@@ -23,7 +23,7 @@ public:
     virtual bool CanInteract_Implementation(APawn* User) const override;
     virtual void Interact_Implementation(APawn* User) override;
     virtual void SetupPlayerInputComponent(UInputComponent* Input) override;
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual FGuid PersistentId() const override { return SaveId; }
     virtual FOWWorldRecord CapturePersistentState() const override;
     virtual void RestorePersistentState(const FOWWorldRecord& State) override;

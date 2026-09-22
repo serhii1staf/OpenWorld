@@ -8,6 +8,7 @@
 #include "Missions/OWMissionComponent.h"
 #include "Interaction/OWInteractable.h"
 #include "Engine/Canvas.h"
+#include "Engine/World.h"
 void AOWHUD::DrawHUD()
 {
     Super::DrawHUD();
@@ -21,7 +22,11 @@ void AOWHUD::DrawHUD()
         DrawRect(FLinearColor(0.28f,0.78f,0.61f),X,Y,180.f * C->Health->GetHealth()/FMath::Max(1.f,C->Health->MaxHealth),4.f);
         DrawText(FString::Printf(TEXT("%d  /  %s"),C->Weapon->Magazine,C->Weapon->bReloading ? TEXT("RELOADING") : TEXT("AMMO")),Ink,X,Y+15.f);
         DrawRect(Ink,Canvas->ClipX*0.5f-1.f,Canvas->ClipY*0.5f-1.f,2.f,2.f);
-        if (AActor* A = C->FindInteraction())
+        if (GetWorld()->GetTimeSeconds() >= NextScanAt)
+        {
+            CachedInteraction = C->FindInteraction(); NextScanAt = GetWorld()->GetTimeSeconds() + 0.1;
+        }
+        if (AActor* A = CachedInteraction.Get())
         {
             if (IOWInteractable::Execute_CanInteract(A,C)) DrawText(TEXT("E  ")+IOWInteractable::Execute_GetPrompt(A,C).ToString(),Ink,Canvas->ClipX*0.5f-60.f,Canvas->ClipY*0.6f);
         }

@@ -118,7 +118,7 @@ void AOWVehiclePawn::EndPlay(const EEndPlayReason::Type Reason)
     if (HasAuthority()) GetWorld()->GetSubsystem<UOWWorldStateSubsystem>()->Unregister(this);
     Super::EndPlay(Reason);
 }
-void AOWVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const
+void AOWVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(Out); DOREPLIFETIME(AOWVehiclePawn, Driver);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AOWVehiclePawn, Driver);
 }

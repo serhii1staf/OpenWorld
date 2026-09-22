@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "status": "content-required",
+  "assets": [],
+  "note": "No production models, maps, textures, animation or audio are bundled. Do not change status until the actual assets and licenses have been integrated and validated. See docs/CONTENT.md."
+}

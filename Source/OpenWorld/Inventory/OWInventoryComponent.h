@@ -30,7 +30,7 @@ public:
     const TArray<FOWItemStack>& GetItems() const { return Items; }
     bool Restore(const TArray<FOWItemStack>& NewItems, int64 NewMoney);
     static bool ValidateSnapshot(const TArray<FOWItemStack>& NewItems, int64 NewMoney);
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
     virtual void BeginPlay() override;
 private:
